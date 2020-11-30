@@ -133,4 +133,4 @@ void show_backends(char *ip, int port)
 		SCREEN(SCREEN_RED, stdout, "L4 backed address %s:%d not found in proxy map.\n", ip, port);
 	}
 	close(fd);
-
+}
