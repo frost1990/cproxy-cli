@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
@@ -37,7 +38,10 @@ void show_datapath(char *ip, int port)
 	key.dport = htons(port);
 	key.backend_slot = 0;
 
-	bpf_map_lookup_elem(fd, &key, &val);
+	if (bpf_map_lookup_elem(fd, &key, &val) != 0) {
+		SCREEN(SCREEN_YELLOW, stdout, "L4 frontend addr %s:%d not found in proxy map, %m\n", ip, port);
+		exit(EXIT_FAILURE);
+	}
 	uint16_t count = val.count;
 	if (count > 0) {
 		SCREEN(SCREEN_YELLOW, stdout, "L4 frontend addr %s:%d\n", ip, port);
@@ -60,7 +64,10 @@ void show_backend_by_id(uint32_t id)
 		return;
 	}
 	struct lb4_backend backend;
-	bpf_map_lookup_elem(fd, &id, &backend);
+	if (bpf_map_lookup_elem(fd, &id, &backend) != 0) {;
+		SCREEN(SCREEN_RED, stdout, "Backend ID %d not found in proxy map, %m\n", id);
+		exit(EXIT_FAILURE);
+	}
 	print_lb4_backend(&backend);
 	close(fd);
 }
