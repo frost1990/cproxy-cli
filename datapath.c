@@ -130,7 +130,7 @@ void show_backends(char *ip, int port)
 		} 
 	}
 	if (!found) {
-		SCREEN(SCREEN_RED, stdout, "L4 backed address %s:%d not found in proxy map.\n", ip, port);
+		SCREEN(SCREEN_RED, stdout, "L4 backend address %s:%d not found in proxy map.\n", ip, port);
 	}
 	close(fd);
 }
