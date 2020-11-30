@@ -115,8 +115,9 @@ void show_backends(char *ip, int port)
 
 	bool found = false;
 	while (bpf_map_get_next_key(fd, &lookup_key, &next_key) == 0) {
-		bpf_map_lookup_elem(fd, &next_key, &val);
-		//print_lb4_backend(&bk);
+		if (bpf_map_lookup_elem(fd, &next_key, &val) != 0){
+			SCREEN(SCREEN_RED, stderr, "bpf_map_lookup_elem %d %m", __LINE__);
+		}
 		lookup_key = next_key;
 
     	char ipstr[64] = {0};
