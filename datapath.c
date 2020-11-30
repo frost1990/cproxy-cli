@@ -15,8 +15,8 @@
 #include "screen.h"
 #include "sk.h"
 
-static const char *service_map		= "/sys/fs/bpf/tc/globals/cilium_lb4_services_v2";
-static const char *backend_map		= "/sys/fs/bpf/tc/globals/cilium_lb4_backends";
+static const char *service_map	= "/sys/fs/bpf/tc/globals/cilium_lb4_services_v2";
+static const char *backend_map	= "/sys/fs/bpf/tc/globals/cilium_lb4_backends";
 
 void print_lb4_backend(struct lb4_backend *p) {
     char ipstr[64] = {0};
