@@ -18,10 +18,38 @@
 static const char *service_map	= "/sys/fs/bpf/tc/globals/cilium_lb4_services_v2";
 static const char *backend_map	= "/sys/fs/bpf/tc/globals/cilium_lb4_backends";
 
-void print_lb4_backend(struct lb4_backend *p) {
+void print_lb4_backend(struct lb4_backend *p) 
+{
     char ipstr[64] = {0};
     sk_ipv4_tostr(ntohl(p->address), ipstr, strlen(ipstr));
 	SCREEN(SCREEN_BLUE, stdout, "--> backend address: %s:%d, proto:%d\n", ipstr, __be16_to_cpu(p->port), p->proto);
+}
+
+void search_backend_reference(uint32_t backend_id) 
+{
+	int fd = bpf_obj_get(service_map);
+	if (fd < 0) {
+		SCREEN(SCREEN_RED, stderr, "failed to fetch the map: %d (%s), file path: %s\n", 
+			fd, strerror(errno), backend_map);
+		return;
+	}
+
+	struct lb4_key lookup_key, next_key;
+	lookup_key.address = 0;
+	next_key.address = 0;
+	struct lb4_service svc;
+
+	while (bpf_map_get_next_key(fd, &lookup_key, &next_key) == 0) {
+		bpf_map_lookup_elem(fd, &next_key, &svc);
+		if (svc.backend_id == backend_id) {
+    		char ipstr[64] = {0};
+    		sk_ipv4_tostr(ntohl(next_key.address), ipstr, strlen(ipstr));
+			SCREEN(SCREEN_BLUE, stdout, "<-- backend id %d is redirected from frontend %s:%d\n", 
+				backend_id, ipstr, ntohs(next_key.dport));	
+		}
+		lookup_key = next_key;
+	}
+	close(fd);
 }
 
 void show_datapath(char *ip, int port)
@@ -60,7 +88,8 @@ void show_backend_by_id(uint32_t id)
 {
 	int fd = bpf_obj_get(backend_map);
 	if (fd < 0) {
-		printf("failed to fetch the map: %d (%s), file path: %s\n", fd, strerror(errno), backend_map);
+		SCREEN(SCREEN_RED, stderr, "failed to fetch the map: %d (%s), file path: %s\n", 
+			fd, strerror(errno), backend_map);
 		return;
 	}
 	struct lb4_backend backend;
@@ -74,6 +103,30 @@ void show_backend_by_id(uint32_t id)
 
 void show_backends(char *ip, int port)
 {
+	int fd = bpf_obj_get(backend_map);
+	if (fd < 0) {
+		SCREEN(SCREEN_RED, stderr, 
+			"failed to fetch the map: %d (%s), file path: %s\n", fd, strerror(errno), backend_map);
+		return;
+	}
 
+	struct lb4_backend val;
+	uint16_t lookup_key, next_key;
 
+	while (bpf_map_get_next_key(fd, &lookup_key, &next_key) == 0) {
+		bpf_map_lookup_elem(fd, &next_key, &val);
+		//print_lb4_backend(&bk);
+		lookup_key = next_key;
+
+    	char ipstr[64] = {0};
+    	sk_ipv4_tostr(ntohl(val.address), ipstr, strlen(ipstr));
+		if (strcasecmp(ipstr, ip) == 0 && (uint16_t)port == ntohs(val.port)) {
+			SCREEN(SCREEN_YELLOW, stdout, "L4 address %s:%d has backend id %d\n", ip, port, next_key);
+			uint32_t backend_id = next_key;
+			search_backend_reference(backend_id);	
+		} 
+	}
 }
+
+
+
