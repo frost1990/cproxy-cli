@@ -39,12 +39,12 @@ void show_datapath(char *ip, int port)
 	key.backend_slot = 0;
 
 	if (bpf_map_lookup_elem(fd, &key, &val) != 0) {
-		SCREEN(SCREEN_YELLOW, stdout, "L4 frontend addr %s:%d not found in proxy map, %m\n", ip, port);
+		SCREEN(SCREEN_YELLOW, stdout, "L4 frontend address %s:%d not found in proxy map, %m\n", ip, port);
 		exit(EXIT_FAILURE);
 	}
 	uint16_t count = val.count;
 	if (count > 0) {
-		SCREEN(SCREEN_YELLOW, stdout, "L4 frontend addr %s:%d\n", ip, port);
+		SCREEN(SCREEN_YELLOW, stdout, "L4 frontend address %s:%d\n", ip, port);
 	}
 	for (uint16_t i = 1; i <= count; i++) {
 		key.backend_slot =  i;
