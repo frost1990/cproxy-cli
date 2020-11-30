@@ -9,6 +9,7 @@ int main(int argc, char **argv)
 	if (argc != 4) {
 		SCREEN(SCREEN_YELLOW, stderr, "usage: %s frontend/backend frontend_ip/backend_ip port\n", argv[0]);
 		SCREEN(SCREEN_YELLOW, stderr, "example: %s frontend 172.17.0.2 53\n", argv[0]);
+		SCREEN(SCREEN_YELLOW, stderr, "example: %s backend 10.8.164.116 8080\n", argv[0]);
 		exit(EXIT_FAILURE);
 	} 
 	char *type = argv[1];
