@@ -113,6 +113,7 @@ void show_backends(char *ip, int port)
 	struct lb4_backend val;
 	uint16_t lookup_key, next_key;
 
+	bool found = false;
 	while (bpf_map_get_next_key(fd, &lookup_key, &next_key) == 0) {
 		bpf_map_lookup_elem(fd, &next_key, &val);
 		//print_lb4_backend(&bk);
@@ -121,10 +122,14 @@ void show_backends(char *ip, int port)
     	char ipstr[64] = {0};
     	sk_ipv4_tostr(ntohl(val.address), ipstr, strlen(ipstr));
 		if (strcasecmp(ipstr, ip) == 0 && (uint16_t)port == ntohs(val.port)) {
+			found = true;
 			SCREEN(SCREEN_YELLOW, stdout, "L4 address %s:%d has backend id %d\n", ip, port, next_key);
 			uint32_t backend_id = next_key;
 			search_backend_reference(backend_id);	
 		} 
+	}
+	if (!found) {
+		SCREEN(SCREEN_RED, stdout, "L4 backed address %s:%d not found in proxy map.\n", ip, port);
 	}
 	close(fd);
 }
