@@ -7,7 +7,7 @@
 int main(int argc, char **argv) 
 {
 	if (argc != 4) {
-		SCREEN(SCREEN_YELLOW, stderr, "usage: %s frontend/backend/all frontend_ip/backend_ip\n", argv[0]);
+		SCREEN(SCREEN_YELLOW, stderr, "usage: %s frontend/backend frontend_ip/backend_ip\n", argv[0]);
 		exit(EXIT_FAILURE);
 	} 
 	char *type = argv[1];
@@ -17,8 +17,9 @@ int main(int argc, char **argv)
 	if (strcasecmp(type, "frontend") == 0) {
 		show_datapath(ip, port);
 	} else if (strcasecmp(type, "backend") == 0) {
-
+		show_backends(ip, port);
+	} else {
+		SCREEN(SCREEN_RED, stderr, "incorrect type: %s\n", type);
 	}
-
 	return 0;
 }
