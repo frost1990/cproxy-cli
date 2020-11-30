@@ -126,7 +126,5 @@ void show_backends(char *ip, int port)
 			search_backend_reference(backend_id);	
 		} 
 	}
+	close(fd);
 }
-
-
-
