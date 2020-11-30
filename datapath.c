@@ -39,7 +39,7 @@ void show_datapath(char *ip, int port)
 	key.backend_slot = 0;
 
 	if (bpf_map_lookup_elem(fd, &key, &val) != 0) {
-		SCREEN(SCREEN_YELLOW, stdout, "L4 frontend address %s:%d not found in proxy map, %m\n", ip, port);
+		SCREEN(SCREEN_RED, stdout, "L4 frontend address %s:%d not found in proxy map: %m\n", ip, port);
 		exit(EXIT_FAILURE);
 	}
 	uint16_t count = val.count;
@@ -65,7 +65,7 @@ void show_backend_by_id(uint32_t id)
 	}
 	struct lb4_backend backend;
 	if (bpf_map_lookup_elem(fd, &id, &backend) != 0) {;
-		SCREEN(SCREEN_RED, stdout, "Backend ID %d not found in proxy map, %m\n", id);
+		SCREEN(SCREEN_RED, stdout, "Backend ID %d not found in proxy map: %m\n", id);
 		exit(EXIT_FAILURE);
 	}
 	print_lb4_backend(&backend);
