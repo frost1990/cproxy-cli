@@ -22,7 +22,11 @@ void print_lb4_backend(struct lb4_backend *p)
 {
     char ipstr[64] = {0};
     sk_ipv4_tostr(ntohl(p->address), ipstr, strlen(ipstr));
-	SCREEN(SCREEN_BLUE, stdout, "--> backend address: %s:%d, proto:%d\n", ipstr, __be16_to_cpu(p->port), p->proto);
+	if (p->proto == 17) {
+		SCREEN(SCREEN_BLUE, stdout, "--> backend address: udp %s:%d\n", ipstr, __be16_to_cpu(p->port));
+	} else {
+		SCREEN(SCREEN_BLUE, stdout, "--> backend address: tcp %s:%d\n", ipstr, __be16_to_cpu(p->port));
+	}
 }
 
 void search_backend_reference(uint32_t backend_id) 
@@ -82,7 +86,7 @@ void show_datapath(char *proto, char *l4addr)
 	}
 	uint16_t count = val.count;
 	if (count > 0) {
-		SCREEN(SCREEN_YELLOW, stdout, "L4 frontend address %s:%d\n", ip, port);
+		SCREEN(SCREEN_YELLOW, stdout, "L4 frontend address %s %s:%d\n", proto, ip, port);
 	}
 	for (uint16_t i = 1; i <= count; i++) {
 		key.backend_slot =  i;
