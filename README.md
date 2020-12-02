@@ -1,6 +1,6 @@
 # cproxy-cli
 
-A client line inferface to show datapath of cproxy, both frontend and backends.
+A command line inferface to show datapath of cproxy, both frontend and backends.
 
 ```
 usage: ./cproxycli tcp/udp frontend/backend frontend_ip/backend_ip:port
