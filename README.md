@@ -11,7 +11,7 @@ example: ./cproxycli backend tcp 10.8.164.116:8080
 Results:
 
 ```
-./cproxycli frontend tcp 172.17.220.0:334
+# ./cproxycli frontend tcp 172.17.220.0:334
 L4 frontend address tcp 172.17.220.0:334
 --> backend address: tcp 10.8.107.247:3344
 --> backend address: tcp 10.8.111.86:3344
