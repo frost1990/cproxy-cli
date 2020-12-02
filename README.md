@@ -2,9 +2,13 @@
 
 A client line inferface to show datapath of cproxy, both frontend and backends.
 
+```
 usage: ./cproxycli tcp/udp frontend/backend frontend_ip/backend_ip:port
 example: ./cproxycli frontend udp 172.17.0.2:53
 example: ./cproxycli backend tcp 10.8.164.116:8080
+```
+
+Results:
 
 ```
 ./cproxycli frontend tcp 172.17.220.0:334
