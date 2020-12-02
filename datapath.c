@@ -130,6 +130,7 @@ void show_backends(char *proto, char *l4aadr)
 	}
 
 	char *r = malloc(30);
+	char *freepos = r;
 	strcpy(r, l4aadr);
     char *ip = strsep(&r, ":");
    	int port = atoi(r);
@@ -156,5 +157,5 @@ void show_backends(char *proto, char *l4aadr)
 		SCREEN(SCREEN_RED, stdout, "L4 backend address %s:%d not found in proxy map.\n", ip, port);
 	}
 	close(fd);
-	free(r);
+	free(freepos);
 }
