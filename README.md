@@ -27,5 +27,4 @@ L4 frontend address tcp 172.17.220.0:334
 # ./cproxycli backend tcp 10.8.158.94:3344
 L4 address 10.8.158.94:3344 has backend id 19
 <-- backend id 19 is redirected from frontend 172.17.220.0:334
-
 ```
