@@ -121,10 +121,10 @@ void show_backend_by_id(uint32_t id)
 
 bool protoeq(int pn, char *proto) 
 {
-	return ((pn == 6 && strcasecmp("tcp", proto)) || (pn == 17 && strcasecmp("udp", proto)));
+	return ((pn == 6 && strcasecmp("tcp", proto) == 0) || (pn == 17 && strcasecmp("udp", proto) == 0));
 }
 
-void show_backends(char *proto, char *l4aadr)
+void show_backends(char *proto, char *l4addr)
 {
 	int fd = bpf_obj_get(backend_map);
 	if (fd < 0) {
@@ -135,8 +135,12 @@ void show_backends(char *proto, char *l4aadr)
 
 	char *r = malloc(30);
 	char *freepos = r;
-	strcpy(r, l4aadr);
+	strcpy(r, l4addr);
     char *ip = strsep(&r, ":");
+	if (r == NULL) {
+		SCREEN(SCREEN_RED, stderr, "Invalid l4 address %s\n", l4addr);
+		exit(EXIT_FAILURE);
+	} 
    	int port = atoi(r);
 
 	struct lb4_backend val;
@@ -152,13 +156,13 @@ void show_backends(char *proto, char *l4aadr)
     	sk_ipv4_tostr(ntohl(val.address), ipstr, strlen(ipstr));
 		if (protoeq(val.proto, proto) && strcasecmp(ipstr, ip) == 0 && (uint16_t)port == ntohs(val.port)) {
 			found = true;
-			SCREEN(SCREEN_YELLOW, stdout, "L4 address %s:%d has backend id %d\n", ip, port, next_key);
+			SCREEN(SCREEN_YELLOW, stdout, "L4 address %s %s:%d has backend id %d\n", proto, ip, port, next_key);
 			uint32_t backend_id = next_key;
 			search_backend_reference(backend_id);	
 		} 
 	}
 	if (!found) {
-		SCREEN(SCREEN_RED, stdout, "L4 backend address %s:%d not found in proxy map.\n", ip, port);
+		SCREEN(SCREEN_RED, stdout, "L4 backend address %s %s:%d not found in proxy map.\n", proto, ip, port);
 	}
 	close(fd);
 	free(freepos);
