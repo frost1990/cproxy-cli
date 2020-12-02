@@ -15,8 +15,8 @@
 #include "screen.h"
 #include "sk.h"
 
-static const char *service_map	= "/sys/fs/bpf/tc/globals/cilium_lb4_services_v2";
-static const char *backend_map	= "/sys/fs/bpf/tc/globals/cilium_lb4_backends";
+static const char *service_map	= "/sys/fs/bpf/tc/globals/cproxy_lb4_services_v2";
+static const char *backend_map	= "/sys/fs/bpf/tc/globals/cproxy_lb4_backends";
 
 void print_lb4_backend(struct lb4_backend *p) 
 {
@@ -69,6 +69,10 @@ void show_datapath(char *proto, char *l4addr)
 	char *r = malloc(30);
 	strcpy(r, l4addr);
     char *ip = strsep(&r, ":");
+	if (r == NULL) {
+		SCREEN(SCREEN_RED, stderr, "Invalid l4 address %s\n", l4addr);
+		exit(EXIT_FAILURE);
+	} 
    	int port = atoi(r);
 
 	key.address = inet_addr(ip);
@@ -81,7 +85,7 @@ void show_datapath(char *proto, char *l4addr)
 	}
 
 	if (bpf_map_lookup_elem(fd, &key, &val) != 0) {
-		SCREEN(SCREEN_RED, stdout, "L4 frontend address %s:%d not found in proxy map: %m\n", ip, port);
+		SCREEN(SCREEN_RED, stdout, "L4 frontend address %s %s:%d not found in proxy map: %m\n", proto, ip, port);
 		exit(EXIT_FAILURE);
 	}
 	uint16_t count = val.count;
