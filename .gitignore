@@ -16,7 +16,7 @@ cproxycli
 *.ko
 *.obj
 *.elf
-
+core*
 # Linker output
 *.ilk
 *.map
