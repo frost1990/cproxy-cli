@@ -6,6 +6,11 @@
 
 int main(int argc, char **argv) 
 {
+	if (argc == 2 && strcasecmp(argv[1], "all") == 0) {
+	//	print_all_datapath();
+		exit(EXIT_SUCCESS);
+	}
+
 	if (argc != 4) {
 		SCREEN(SCREEN_YELLOW, stderr, "usage: %s tcp/udp frontend/backend frontend_ip/backend_ip:port\n", argv[0]);
 		SCREEN(SCREEN_YELLOW, stderr, "example: %s frontend udp 172.17.0.2:53\n", argv[0]);
