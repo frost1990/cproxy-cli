@@ -6,8 +6,8 @@
 
 int main(int argc, char **argv) 
 {
-	if (argc == 2 && strcasecmp(argv[1], "all") == 0) {
-	//	print_all_datapath();
+	if (argc == 2 && strcasecmp(argv[1], "stat") == 0) {
+		show_stat();
 		exit(EXIT_SUCCESS);
 	}
 

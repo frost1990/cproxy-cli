@@ -75,4 +75,5 @@ void show_datapath(char *proto, char *l4addr);
 void show_backend_by_id(uint32_t id);
 void show_backends(char *proto, char *l4addr);
 
+void show_stat();
 #endif
