@@ -132,7 +132,7 @@ void show_backends(char *proto, char *l4addr)
 		return;
 	}
 
-	char *r = malloc(30);
+	char *r = malloc(32 * sizeof(char));
 	char *freepos = r;
 	strcpy(r, l4addr);
     char *ip = strsep(&r, ":");
@@ -165,4 +165,49 @@ void show_backends(char *proto, char *l4addr)
 	}
 	close(fd);
 	free(freepos);
+}
+
+void show_stat() 
+{
+	int fd = bpf_obj_get(service_map);
+	if (fd < 0) {
+		SCREEN(SCREEN_RED, stderr, "failed to fetch the map: %d (%s), file path: %s\n", 
+			fd, strerror(errno), service_map);
+		return;
+	}
+
+	struct lb4_key lookup_key, next_key;
+	lookup_key.address = 0;
+	next_key.address = 0;
+	struct lb4_service svc;
+	int frondend_cnt = 0;
+	while (bpf_map_get_next_key(fd, &lookup_key, &next_key) == 0) {
+		bpf_map_lookup_elem(fd, &next_key, &svc);
+		if (next_key.backend_slot == 0) {
+			frondend_cnt++;
+		}
+		lookup_key = next_key;
+	}
+
+	close(fd);
+	fd = bpf_obj_get(backend_map);
+
+	int backend_cnt = 0;
+	if (fd < 0) {
+		SCREEN(SCREEN_RED, stderr, "failed to fetch the map: %d (%s), file path: %s\n", 
+			fd, strerror(errno), backend_map);
+		return;
+	}
+
+	struct lb4_backend bk;
+	uint16_t lookup_int, next_int;
+	while (bpf_map_get_next_key(fd, &lookup_int, &next_int) == 0) {
+		bpf_map_lookup_elem(fd, &next_key, &bk);
+		lookup_int = next_int;
+		backend_cnt++;
+	}
+
+	SCREEN(SCREEN_GREEN, stderr, "Frontends number: %d\n", frondend_cnt);
+	SCREEN(SCREEN_GREEN, stderr, "Backends number: %d\n", backend_cnt);
+	close(fd);
 }
