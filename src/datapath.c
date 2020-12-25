@@ -183,8 +183,16 @@ void show_stat()
 	int frondend_cnt = 0;
 	while (bpf_map_get_next_key(fd, &lookup_key, &next_key) == 0) {
 		bpf_map_lookup_elem(fd, &next_key, &svc);
-		if (next_key.backend_slot == 0) {
-			frondend_cnt++;
+		if (next_key.backend_slot == 0 && svc.count > 0) {
+    		char ipstr[64] = {0};
+    		sk_ipv4_tostr(ntohl(next_key.address), ipstr, strlen(ipstr));
+			char *proto = "tcp";
+			if (next_key.proto == 17) {
+				proto = "udp";
+			}
+			SCREEN(SCREEN_BLUE, stderr, "Frontend %s %s:%d with %d backends\n", 
+					proto,ipstr, ntohs(next_key.dport), svc.count);
+				frondend_cnt++;
 		}
 		lookup_key = next_key;
 	}
@@ -207,7 +215,8 @@ void show_stat()
 		backend_cnt++;
 	}
 
-	SCREEN(SCREEN_GREEN, stderr, "Frontends number: %d\n", frondend_cnt);
-	SCREEN(SCREEN_GREEN, stderr, "Backends number: %d\n", backend_cnt);
+	SCREEN(SCREEN_YELLOW, stderr, "Total:\n");
+	SCREEN(SCREEN_YELLOW, stderr, "Frontends number: %d\n", frondend_cnt);
+	SCREEN(SCREEN_YELLOW, stderr, "Backends number: %d\n", backend_cnt);
 	close(fd);
 }
